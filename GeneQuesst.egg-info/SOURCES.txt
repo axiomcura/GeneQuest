@@ -1,0 +1,7 @@
+README.md
+setup.py
+GeneQuesst.egg-info/PKG-INFO
+GeneQuesst.egg-info/SOURCES.txt
+GeneQuesst.egg-info/dependency_links.txt
+GeneQuesst.egg-info/requires.txt
+GeneQuesst.egg-info/top_level.txt
