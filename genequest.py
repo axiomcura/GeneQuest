@@ -43,6 +43,14 @@ if __name__ == '__main__':
     print("query sequence length: {}".format(len(gene_query)))
     print("total number of reads: {}".format(len(reads)))
 
-    #
+    # assemble the genome
+    # -- group the geomes based on scaffold_id
+    # -- apply the run_de_brujin() function
+
+    # next step is the alignment
+    # -- iterate all generated contigs into the run_local_alignment(query, contig)
+        # returns alignment score a positional alignment data
+
+    # write out the results 
 
 

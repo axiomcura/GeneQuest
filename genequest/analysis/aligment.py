@@ -40,7 +40,13 @@ def trace_back(query, contig, core_matrix, top_score, score_loc):
     score_loc : _type_
         _description_
     """
-    # start at the bottom corner
+    # search index position in the matrix that contains the highest score
+
+    # trace back by searching for the next score
+
+    # repeat until reading "0" as the highest score
+
+    # return alignment and postional data
 
 
 
