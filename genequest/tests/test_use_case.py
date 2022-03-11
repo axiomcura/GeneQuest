@@ -1,5 +1,5 @@
 from memory_profiler import profile
-from genequest.io.parser import FastaReader
+from genequest.io_handler.parser import FastaReader
 
 @profile
 def usecase_1():

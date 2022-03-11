@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 # genequest imports
-from genequest.io.parser import FastaEntry, FastaReader
+from genequest.io_handler.parser import FastaEntry, FastaReader
 from genequest.analysis.aligment import generate_scoring_matrix
 #====================
 # data generator functions
@@ -17,7 +17,7 @@ def generate_random_seq(n_nucleotides):
 
 
 # TODO: add readable logger
-class TestFunctions(unittest.TestCase):
+class ParserFunctions(unittest.TestCase):
     logger = logging.getLogger(__name__)
     logging.basicConfig(format = '%(asctime)s %(module)s %(levelname)s: %(message)s',
                         datefmt = '%m/%d/%Y %I:%M:%S %p', level = logging.INFO)
@@ -103,11 +103,61 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(str(entries_obj[2]), str(test_entries[2]))
 
 
+
+class AssemberTest(unittest.TestCase):
+    """ testes all functions in """
+
+    def
+
+
+
+
+class AlignmentTest(unittest.TestCase):
+    """ testes all functions and cases when assembling """
+
+    # TODO: create test
     def test_zero_matrix_builder(self):
         """ Builds a matrix of zero-filled matrix """
         test_contig = ""
         test_query = ""
         test_shape = (len(test_query) + 1, len(test_contig) + 1)
 
-        # build the matrix (query size, contig size)
 
+        # build the matrix (query size, contig size)
+        # NOTE: STUBBING
+        test_matrix_size = (10,10)
+        true_matrix_size = (10,10)
+
+        # testing if matrxies are equal
+        self.assertEqual(true_matrix_size, test_matrix_size)
+
+
+    # TODO: create test
+    def test_contig_smaller_than_query_size(self):
+        # Stubbing
+        with self.assertRaises(Exception):
+            contig_size = 324
+            query_size = 324444
+
+            if query_size > contig_size:
+                raise ValueError("Contig sequence is smaller than the query length. Cannot align")
+
+
+
+    # TODO: create test
+    def test_alignment_score_warning(self):
+        """Produce a message if the alignment score """
+
+            # contig and gene as inputs
+
+            # construct scoring matrix
+
+            # apply local alignment
+
+            # select top scoring alignment
+
+            # if a top score a very low value
+
+                # raise warning
+
+        pass
