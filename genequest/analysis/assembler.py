@@ -18,7 +18,7 @@ def kmerize(entries, k=3):
     sequence : list
         DNA sequences reads
     k : int, optional
-        framgment size, by default 3
+        fragment size, by default 3
 
     Returns
     -------
@@ -27,7 +27,6 @@ def kmerize(entries, k=3):
     """
 
     kmers = defaultdict(lambda: 1)
-
     for entry in entries:
         for i in range(len(entry.seq)-k+1):
             kmer_fragment = entry.seq[i:i+k]
