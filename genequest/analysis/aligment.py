@@ -47,7 +47,7 @@ def trace_back(query, contig, core_matrix, top_score, score_loc):
     # repeat until reading "0" as the highest score
 
     # return alignment and postional data
-
+    pass 
 
 
 def match_scoring(nuc1, nuc2, match_score=10, mismatch_score=-5):

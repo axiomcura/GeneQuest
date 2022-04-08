@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # NOTE: these are not used yet. Used for alignment only
     optional.add_argument("-k", "--kmer_size", type=int, required=False, default=3,
                           help="size of the sequence fragments")
-    optional.add_argument("-ms", "--match_score", type=int, required=False, default=-5,
+    optional.add_argument("-ms", "--match_score", type=int, required=False, default=10,
                           help="Score applied for matching nucleotide")
     optional.add_argument("-gs", "--gap_score", type=int, required=False, default=0,
                           help="Penalty score applied for gaps")
@@ -51,6 +51,6 @@ if __name__ == '__main__':
     # -- iterate all generated contigs into the run_local_alignment(query, contig)
         # returns alignment score a positional alignment data
 
-    # write out the results 
+    # write out the results
 
 

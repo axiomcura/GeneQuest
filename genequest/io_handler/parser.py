@@ -1,21 +1,27 @@
+from collections import defaultdict
 from genequest.common.errors import FormatError
 
 class FastaEntry:
     """ Class object that contains the FASTA entry information"""
-    __slot__ = ["header_id", "scafold_id", "seq"]
+    __slot__ = ["header_id", "scafold_id", "seq", "beg_pos", "end_pos"]
 
     def __init__(self, header_id, scaffold_id, seq):
         self.header_id = header_id
         self.scaffold_id = scaffold_id
         self.seq = seq
+        self.beg_pos = 0
+        self.end_pos = len(seq)
 
     def __str__(self):
         """String representation of the data type"""
-        str_rep = f"FastaEntry(header_id='{self.header_id}', scaffold_id='{self.scaffold_id}', seq='{self.seq}')"
+        str_rep = f"FastaEntry(header_id='{self.header_id}', scaffold_id='{self.scaffold_id}', seq='{self.seq}', beg_pos='{self.beg_pos}', end_pos='{self.end_pos}')"
         return str_rep
 
     def __repr__(self):
         return self.__str__()
+
+    def __len__(self):
+        return len(self.seq)
 
 
 class FastaReader():
@@ -39,6 +45,7 @@ class FastaReader():
         self.entries = None
         self.n_entries = None
         self.ids = None
+        self.scaffold_ids = None
 
         # populating attributes
         self.__parse_fasta()
@@ -55,7 +62,11 @@ class FastaReader():
     # TODO: grouping function
     def group_by_scaffold(self):
         """ Groups all entries based on a scaffold"""
-        pass
+        grouped_entries = defaultdict(list)
+        for entry in self.entries:
+            grouped_entries[entry.scaffold_id].append(entry)
+        
+        return grouped_entries
 
     # TODO: useful function to search
     def search(self, header_id):
@@ -108,19 +119,25 @@ class FastaReader():
             raw_entries = [tuple(data[i:i+2]) for i in range(0, len(data), 2)]
 
             entries = []
+            scaffold_set = set()
             for header, seq in raw_entries:
 
-                # removing unwantedf ormating
+                # removing unwanted formating
                 header_id = header.strip().replace("\n", "").replace(">", "")
-                scafold_id = header.split(':')[0]
+                scaffold_id = header.split(':')[0].replace(">", "")
                 seq = seq.strip().replace("\n", "")
 
                 # Collecting data and converting it into FastaEntry type
-                entry = FastaEntry(header_id, scafold_id, seq)
+                entry = FastaEntry(header_id, scaffold_id, seq)
                 entries.append(entry)
+
+                scaffold_set.add(scaffold_id)
+
 
         self.entries = entries
         self.n_entries = len(entries)
+        self.scaffold_ids = list(scaffold_set)
+        self.n_scaffolds = len(list(scaffold_set))
 
 
     #---------------------
