@@ -1,14 +1,15 @@
-#------------------------------
-# aligment.py
+# ------------------------------
+# assembler.py
 # Erik Serrano
 # erik.serrano@cuanschutz.edu
 #
-# Module containing functions for geneome aseembly by
+# Module containing functions for genome assembly by
 # by using De bruijn graphs.
-# paper explaining development of de brujin graphs: https://doi.org/10.1038/nbt.2023
-#------------------------------
+# paper explaining development of de bruijn graphs: https://doi.org/10.1038/nbt.2023
+# ------------------------------
 from collections import defaultdict
 import itertools
+
 
 def kmerize(entries, k=3):
     """Breaks the sequences into fragments of size k
@@ -28,8 +29,8 @@ def kmerize(entries, k=3):
 
     kmers = defaultdict(lambda: 1)
     for entry in entries:
-        for i in range(len(entry.seq)-k+1):
-            kmer_fragment = entry.seq[i:i+k]
+        for i in range(len(entry.seq) - k + 1):
+            kmer_fragment = entry.seq[i : i + k]
 
             # keep track how many times the fragment appears
             if kmer_fragment in kmers:
@@ -50,11 +51,10 @@ def generate_nodes(kmers):
     """
     nodes = set()
     for kmer in kmers:
-        node = kmer[:len(kmer)-1]
+        node = kmer[: len(kmer) - 1]
         nodes.add(node)
 
     return list(nodes)
-
 
 
 def generate_edges_from_kmers(kmers):
@@ -73,7 +73,6 @@ def generate_edges_from_kmers(kmers):
             edges.add((kmer2[:-1], kmer2[:-1]))
 
     return edges
-
 
 
 def run_de_brujin(sequences, k=3):
@@ -103,7 +102,5 @@ def run_de_brujin(sequences, k=3):
         nodes = generate_nodes(edge_list)
         result = (s_id, nodes)
         grouped_nodes.append(result)
-
-    
 
     return grouped_nodes

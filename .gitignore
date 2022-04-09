@@ -1,2 +1,6 @@
 *.pyc
 *.DS_Store
+test.txt
+prototypes/assembly.log
+prototypes/contigs.txt
+.gitignore
