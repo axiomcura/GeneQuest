@@ -4,3 +4,4 @@ test.txt
 prototypes/assembly.log
 prototypes/contigs.txt
 .gitignore
+GeneQuesst.egg-info

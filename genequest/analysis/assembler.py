@@ -7,75 +7,80 @@
 # by using De bruijn graphs.
 # paper explaining development of de bruijn graphs: https://doi.org/10.1038/nbt.2023
 # ------------------------------
+from copy import deepcopy
 from collections import defaultdict
-import itertools
 
 
-def kmerize(entries, k=3):
-    """Breaks the sequences into fragments of size k
+class Node:
+    """Class Node to represent a vertex in the de bruijn graph"""
+
+    # TODO: add reads id, start and ending
+    def __init__(self, label):
+        self.label = label
+        self.indegree = 0
+        self.outdegree = 0
+
+
+class Edge:
+    # TODO: add reads id, start and ending
+    def __init__(self, label):
+        self.label = label
+
+
+def create_bruijn_graph(reads, k=3) -> tuple:
+    """Generate a
 
     Parameters
     ----------
-    sequence : list
-        DNA sequences reads
+    reads : _type_
+        _description_
     k : int, optional
-        fragment size, by default 3
-
-    Returns
-    -------
-    dict
-        containing kmer and n_instances as key value pairs
+        _description_, by default 3
     """
 
-    kmers = defaultdict(lambda: 1)
-    for entry in entries:
-        for i in range(len(entry.seq) - k + 1):
-            kmer_fragment = entry.seq[i : i + k]
-
-            # keep track how many times the fragment appears
-            if kmer_fragment in kmers:
-                kmers[kmer_fragment] += 1
+    edges = dict()
+    nodes = dict()
+    for read in reads:
+        for i in range(len(read.seq) - k + 1):
+            edge1 = read.seq[i : i + k]
+            edge2 = read.seq[i + 1 : i + k + 1]
+            if edge1 in edges.keys():
+                nodes[edge1].outdegree += 1
+                edges[edge1] += [Edge(edge2)]
             else:
-                kmers[kmer_fragment]
+                nodes[edge1] = Node(edge1)
+                nodes[edge1].outdegree += 1
+                edges[edge1] = [Edge(edge2)]
 
-    return kmers
+            if edge2 in edges.keys():
+                nodes[edge2].indegree += 1
+            else:
+                nodes[edge2] = Node(edge2)
+                nodes[edge2].indegree += 1
+                edges[edge2] = []
+            i += 1
+
+    return (nodes, edges)
 
 
-def generate_nodes(kmers):
-    """generate nodes based on given edges
-
-    Parameters
-    ----------
-    edges : list
-        list of edges
+def generate_contig(starting_edge, edges):
     """
-    nodes = set()
-    for kmer in kmers:
-        node = kmer[: len(kmer) - 1]
-        nodes.add(node)
+    Assembles genomes through eulerian walks
+    """
+    # identifying all possible start nodes that have
+    # Conducting eulerian walks
+    contig = starting_edge
+    current = starting_edge
+    while len(edges[current]) > 0:
+        next = edges[current][0]
+        del edges[current][0]
+        contig += next.label[-1]
+        current = next.label
 
-    return list(nodes)
-
-
-def generate_edges_from_kmers(kmers):
-    kmer_list = list(kmers.keys())
-
-    # creating I J combinatino
-    kmer_pairs = itertools.product(kmer_list, 2)
-
-    # iterate through pairs and find overlaping kmers
-    edges = {}
-    for kmer1, kmer2 in kmer_pairs:
-        # getting prefixes and sufixes
-        if kmer1[1:] == kmer2[:-1]:
-            edges.add((kmer1[1:], kmer2[:-1]))
-        if kmer1[:-1] == kmer2[1:]:
-            edges.add((kmer2[:-1], kmer2[:-1]))
-
-    return edges
+    return contig
 
 
-def run_de_brujin(sequences, k=3):
+def run_de_brujin(sequences, k):
     """Builds a de brujin graph to solve assemble the sequence
     from reads.
 
@@ -89,18 +94,22 @@ def run_de_brujin(sequences, k=3):
     # group sequences
     grouped_sequences = sequences.group_by_scaffold()
 
-    # # # breaking the sequences into fragments
-    kmerized_seqs = []
-    for s_id, entries in grouped_sequences.items():
-        kmers = kmerize(entries, k)
-        result = (s_id, kmers)
-        kmerized_seqs.append(result)
+    generated_contigs = defaultdict(lambda: None)
+    for scafold, reads in grouped_sequences.items():
+        nodes, edges = create_bruijn_graph(reads[:1000], k)
 
-    grouped_nodes = []
-    for s_id, edges in kmerized_seqs:
-        edge_list = list(edges.keys())
-        nodes = generate_nodes(edge_list)
-        result = (s_id, nodes)
-        grouped_nodes.append(result)
+        # finding starting nodes
+        starting_edges = []
+        for kmer in nodes.keys():
+            if nodes[kmer].indegree == 0:
+                starting_edges.append(kmer)
 
-    return grouped_nodes
+        labeled_contigs = defaultdict(None)
+        for idx, starting_edge in enumerate(starting_edges):
+            d_edges = deepcopy(edges)
+            contig = generate_contig(starting_edge, d_edges)
+            labeled_contigs[f"conting{idx+1}"] = contig
+
+        generated_contigs[scafold] = labeled_contigs
+
+    return generated_contigs

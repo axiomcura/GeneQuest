@@ -59,35 +59,20 @@ class FastaReader():
             TypeError("entry must be a FastaEntry type, you provided {}".format(type(entry)))
         pass
 
-    # TODO: grouping function
-    def group_by_scaffold(self):
-        """ Groups all entries based on a scaffold"""
-        grouped_entries = defaultdict(list)
-        for entry in self.entries:
-            grouped_entries[entry.scaffold_id].append(entry)
-        
-        return grouped_entries
-
-    # TODO: useful function to search
-    def search(self, header_id):
-        """Obtains sequence read with given header_id
-
-        Parameters
-        ----------
-        header_id : str
-            FASTA header id
+    def group_by_scaffold(self) -> dict:
+        """ Groups all entries based on a scaffold
 
         Returns
         -------
-        str
-            sequence associated with given fasta header_id
+        dict
+            scafold and FastaEntries as key value pairs
 
-        Raises
-        ------
-        ValueError
-            raised if the provided header_id does not exist
         """
-        pass
+        grouped_entries = defaultdict(list)
+        for entry in self.entries:
+            grouped_entries[entry.scaffold_id].append(entry)
+
+        return grouped_entries
 
 
     # -----------------
