@@ -1,8 +1,10 @@
 from collections import defaultdict
 from genequest.common.errors import FormatError
 
+
 class FastaEntry:
-    """ Class object that contains the FASTA entry information"""
+    """Class object that contains the FASTA entry information"""
+
     __slot__ = ["header_id", "scafold_id", "seq", "beg_pos", "end_pos"]
 
     def __init__(self, header_id, scaffold_id, seq):
@@ -24,8 +26,8 @@ class FastaEntry:
         return len(self.seq)
 
 
-class FastaReader():
-    """ Class that is used for parsing FASTA files. Contains function to conduct
+class FastaReader:
+    """Class that is used for parsing FASTA files. Contains function to conduct
     simple edits.
 
     parameters
@@ -50,17 +52,18 @@ class FastaReader():
         # populating attributes
         self.__parse_fasta()
 
-
     # TODO: make it only support FastaEntry datatypes
     @staticmethod
     def reverse(entry):
-        """ Returns the reverse position of the data"""
+        """Returns the reverse position of the data"""
         if not isinstance(entry, FastaEntry):
-            TypeError("entry must be a FastaEntry type, you provided {}".format(type(entry)))
+            TypeError(
+                "entry must be a FastaEntry type, you provided {}".format(type(entry))
+            )
         pass
 
     def group_by_scaffold(self) -> dict:
-        """ Groups all entries based on a scaffold
+        """Groups all entries based on a scaffold
 
         Returns
         -------
@@ -73,7 +76,6 @@ class FastaReader():
             grouped_entries[entry.scaffold_id].append(entry)
 
         return grouped_entries
-
 
     # -----------------
     # Private functions
@@ -101,7 +103,7 @@ class FastaReader():
             if not data[0].startswith(">"):
                 raise FormatError("Invalid FASTA file")
 
-            raw_entries = [tuple(data[i:i+2]) for i in range(0, len(data), 2)]
+            raw_entries = [tuple(data[i : i + 2]) for i in range(0, len(data), 2)]
 
             entries = []
             scaffold_set = set()
@@ -109,7 +111,7 @@ class FastaReader():
 
                 # removing unwanted formating
                 header_id = header.strip().replace("\n", "").replace(">", "")
-                scaffold_id = header.split(':')[0].replace(">", "")
+                scaffold_id = header.split(":")[0].replace(">", "")
                 seq = seq.strip().replace("\n", "")
 
                 # Collecting data and converting it into FastaEntry type
@@ -118,29 +120,27 @@ class FastaReader():
 
                 scaffold_set.add(scaffold_id)
 
-
         self.entries = entries
         self.n_entries = len(entries)
         self.scaffold_ids = list(scaffold_set)
         self.n_scaffolds = len(list(scaffold_set))
 
-
-    #---------------------
+    # ---------------------
     # class attributes
-    #---------------------
+    # ---------------------
     # TODO: data type transformation functions
     # Data Type transformation support
     # NOTE: to list
     def to_list(self):
-       """ converts FASTA entries into python list"""
-       pass
+        """converts FASTA entries into python list"""
+        pass
 
     def to_pandas(self):
         """Converts FASTA entries into pandas DataFrame"""
         pass
 
     def to_dict():
-        """ Converts FASTA entries into python dictionary"""
+        """Converts FASTA entries into python dictionary"""
         pass
 
     # Allow python functionallity support
@@ -167,8 +167,3 @@ class FastaReader():
 
     def __str__(self):
         return f"FastaReader: Filename: '{self.filename}' has {self.n_entries} entries"
-
-
-
-
-

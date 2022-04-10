@@ -5,3 +5,4 @@ prototypes/assembly.log
 prototypes/contigs.txt
 .gitignore
 GeneQuesst.egg-info
+prototypes/contig_data

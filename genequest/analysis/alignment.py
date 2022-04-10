@@ -75,7 +75,7 @@ def match_scoring(nuc1, nuc2, match_score=10, mismatch_score=-5):
         return mismatch_score
 
 
-def local_align(query, contig, gap=-5, match=10, mismatch=-5):
+def local_alignment(query, contig, gap=-5, match=10, mismatch=-5):
     """Do a local alignment between x and y"""
 
     # create a zero-filled matrix

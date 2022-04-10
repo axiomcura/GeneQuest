@@ -9,12 +9,13 @@
 # ------------------------------
 from copy import deepcopy
 from collections import defaultdict
-
+from genequest.io_handler.parser import FastaReader
+from genequest.common.errors import KmerSizeError, NoNodesFoundError
+from genequest.io_handler.gene_io import save_contigs
 
 class Node:
     """Class Node to represent a vertex in the de bruijn graph"""
 
-    # TODO: add reads id, start and ending
     def __init__(self, label):
         self.label = label
         self.indegree = 0
@@ -22,7 +23,6 @@ class Node:
 
 
 class Edge:
-    # TODO: add reads id, start and ending
     def __init__(self, label):
         self.label = label
 
@@ -35,7 +35,7 @@ def create_bruijn_graph(reads, k=3) -> tuple:
     reads : _type_
         _description_
     k : int, optional
-        _description_, by default 3
+        sequence fragment length, by default 3
     """
 
     edges = dict()
@@ -80,7 +80,7 @@ def generate_contig(starting_edge, edges):
     return contig
 
 
-def run_de_brujin(sequences, k):
+def run_de_bruijn(sequences: FastaReader, k: str, save=False) -> defaultdict:
     """Builds a de brujin graph to solve assemble the sequence
     from reads.
 
@@ -90,13 +90,37 @@ def run_de_brujin(sequences, k):
         DNA sequence
     k : int
         DNA fragment size
+    save : bool, optional
+        saves contigs data into a pickle file. Default = False. If set to true
+        a contigs_data/ directory will be created contining all the pickle files.
+        To open the files, import the genequest.io_handler.gene_io and import the 
+        load_contigs() function load in the contigs data. This is to prevent re-
+        running the assembly algorithm 
+
+    Raises
+    ------
+    KmerSizeError
+        Raised if the kmer size is larger than the length of the shortest sequence read
+
+    NoNodesFoundError
+        raised when no starting nodes are found for assembly
     """
-    # group sequences
+
+    # kmer length checking (cannot be larger than the smallest reads)
+    min_length = min([seq.end_pos for seq in sequences])
+    if not k < min_length:
+        raise KmerSizeError(
+            f"k size is larger than the smallest read must be smaller than {min_length}"
+        )
+
+    # group sequences by scaffold
     grouped_sequences = sequences.group_by_scaffold()
 
-    generated_contigs = defaultdict(lambda: None)
-    for scafold, reads in grouped_sequences.items():
-        nodes, edges = create_bruijn_graph(reads[:1000], k)
+    generated_contigs = defaultdict(None)
+    for scaffold, reads in grouped_sequences.items():
+
+        # generating graph only using 10000 reads per scaffold
+        nodes, edges = create_bruijn_graph(reads[:10000], k)
 
         # finding starting nodes
         starting_edges = []
@@ -104,12 +128,21 @@ def run_de_brujin(sequences, k):
             if nodes[kmer].indegree == 0:
                 starting_edges.append(kmer)
 
+        if len(starting_edges) == 0:
+            raise NoNodesFoundError(
+                "No starting nodes were found, try increasing k size"
+            )
+
+        # assembly
         labeled_contigs = defaultdict(None)
         for idx, starting_edge in enumerate(starting_edges):
             d_edges = deepcopy(edges)
             contig = generate_contig(starting_edge, d_edges)
             labeled_contigs[f"conting{idx+1}"] = contig
 
-        generated_contigs[scafold] = labeled_contigs
+        generated_contigs[scaffold] = labeled_contigs
 
+    if save is True:
+        save_contigs(generated_contigs)
+        
     return generated_contigs
