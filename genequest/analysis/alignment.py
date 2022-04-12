@@ -24,33 +24,62 @@ def generate_scoring_matrix(n_rows, n_cols):
     return matrix
 
 
-def trace_back(query, contig, core_matrix, top_score, score_loc):
+def trace_back(query: str, contig: str, score_matrix: np.ndarray) -> list:
     """
 
     Parameters
     ----------
-    query : _type_
-        _description_
-    contig : _type_
-        _description_
-    core_matrix : _type_
-        _description_
-    top_score : _type_
-        _description_
-    score_loc : _type_
-        _description_
+    query : str
+        query sequence
+    contig : str
+        contig seq
+    score_matrix : np.ndarray
+
+
+    Returns
+    -------
+    list
+        list containing contig_start, contig_end, query_start,
+        query_end, alignment score
     """
+
+    # initialize score and position tacker
+    score = None
+    track_back = []
+    score_list = []
+
     # search index position in the matrix that contains the highest score
+    start_x_pos, start_y_pos = np.unravel_index(score_matrix.argmax(), shape=score_matrix.shape)
+    top_score = score_matrix[start_x_pos, start_y_pos]
+    score = top_score
+    track_back.append((start_x_pos, start_y_pos))
+    score_list.append(top_score)
 
-    # trace back by searching for the next score
+    # trace back by searching for the next score repeat until score == 0
+    x = start_x_pos
+    y = start_y_pos
+    while score > 0:
+        tracker = {}
+        tracker[f"{x-1}, {y}"] = score_matrix[x-1, y]
+        tracker[f"{x}, {y-1}"] = score_matrix[x, y-1]
+        tracker[f"{x-1}, {y-1}"] = score_matrix[x-1, y-1]
 
-    # repeat until reading "0" as the highest score
+        # finding the max 
+        max_score_key= max(tracker, key=tracker.get)
+        max_score = tracker[max_score_key]
+        score = max_score 
+        score_list.append(max_score)
 
-    # return alignment and postional data
-    pass
+        # setting new start position
+        pos = tuple(int(i) for i in max_score_key.split(","))
+        x = pos[0]
+        y = pos[1]
+        track_back.append((x,y))
+
+    return (track_back, score_list)
 
 
-def match_scoring(nuc1, nuc2, match_score=10, mismatch_score=-5):
+def match_scoring(nuc1, nuc2, match_score, mismatch_score):
     """Calculates the score when matching two nucleotide
 
     Parameters
@@ -75,15 +104,13 @@ def match_scoring(nuc1, nuc2, match_score=10, mismatch_score=-5):
         return mismatch_score
 
 
-def local_alignment(query, contig, gap=-5, match=10, mismatch=-5):
+def score_alignment(
+    query: str, contig: str, gap=-5, match=10, mismatch=-4
+) -> np.ndarray:
     """Do a local alignment between x and y"""
 
     # create a zero-filled matrix
     score_matrix = generate_scoring_matrix(len(contig) + 1, len(query) + 1)
-
-    # tracking alignment score and position
-    best_score = 0
-    best_score_loc = (0, 0)
 
     # populating matrix
     for i in range(1, len(contig) + 1):
@@ -94,23 +121,54 @@ def local_alignment(query, contig, gap=-5, match=10, mismatch=-5):
             score_matrix[i][j] = max(
                 score_matrix[i][j - 1] + gap,
                 score_matrix[i - 1][j] + gap,
-                score_matrix[i - 1][j - 1] + match_scoring(contig[i - 1], query[j - 1]),
+                score_matrix[i - 1][j - 1]
+                + match_scoring(
+                    contig[i - 1],
+                    query[j - 1],
+                    match_score=match,
+                    mismatch_score=mismatch,
+                ),
                 0,
             )
 
-            # tracking largest score
-            if score_matrix[i][j] >= best_score:
-                best_score = score_matrix[i][j]
-                best_score_loc = (i, j)
 
     # convert into pandas dataframe
+
+    # TODO: create a heat map plot with this
+    # alignment_df.to_csv("alignment.csv")
+
+    # obtain the sequence and positional data
+    # aligned_seq = trace_back(query, contig, score_matrix)
+
+    # return the opt score and the best location
+    return score_matrix
+
+
+def covert_alignment_to_pandas(
+    query: str, contig: str, score_matrix: str
+) -> pd.DataFrame:
+    """Converts local alignment scoring matrix into pandas
+
+    Parameters
+    ----------
+    query : str
+        query sequence
+    contig : str
+        contig sequence
+    score_matrix : np.ndarray
+        scoring matrix
+
+    Returns
+    -------
+    pd.DataFrame
+        local alignment score into a pandas dataframe
+    """
     col_idx = ["*"] + [n for n in query]
     indx = ["*"] + [n for n in contig]
     alignment_df = pd.DataFrame(score_matrix, columns=col_idx, index=indx)
-    alignment_df.to_csv("alignment.csv")
+    return alignment_df
 
-    # obtain the sequence and positional data
-    aligned_seq = trace_back(query, contig, score_matrix, best_score, best_score_loc)
-
-    # return the opt score and the best location
-    return best_score, best_score_loc, score_matrix
+    
+    
+def run_local_alignment():
+    pass

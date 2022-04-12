@@ -13,6 +13,7 @@ from genequest.io_handler.parser import FastaReader
 from genequest.common.errors import KmerSizeError, NoNodesFoundError
 from genequest.io_handler.gene_io import save_contigs
 
+
 class Node:
     """Class Node to represent a vertex in the de bruijn graph"""
 
@@ -93,9 +94,9 @@ def run_de_bruijn(sequences: FastaReader, k: str, save=False) -> defaultdict:
     save : bool, optional
         saves contigs data into a pickle file. Default = False. If set to true
         a contigs_data/ directory will be created contining all the pickle files.
-        To open the files, import the genequest.io_handler.gene_io and import the 
+        To open the files, import the genequest.io_handler.gene_io and import the
         load_contigs() function load in the contigs data. This is to prevent re-
-        running the assembly algorithm 
+        running the assembly algorithm
 
     Raises
     ------
@@ -144,5 +145,5 @@ def run_de_bruijn(sequences: FastaReader, k: str, save=False) -> defaultdict:
 
     if save is True:
         save_contigs(generated_contigs)
-        
+
     return generated_contigs

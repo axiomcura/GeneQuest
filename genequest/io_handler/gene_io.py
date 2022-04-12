@@ -65,6 +65,7 @@ def load_contigs(contigs_data_path=None) -> dict:
             raise RuntimeError("More than 2 latest files found")
 
         # opening latest file and returning dictionary of contig data
+        print(f"loading contig data: {latest_file}")
         with open(latest_file, "rb") as infile:
             contigs_data = pickle.load(infile)
             return contigs_data

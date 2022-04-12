@@ -35,7 +35,7 @@ def dependencies_test():
     return result
 
 
-def funtions_tests():
+def function_test():
     """ Tests all functions developed in GeneQuest"""
     # create testing env
     loader = unittest.TestLoader()
@@ -54,7 +54,7 @@ def funtions_tests():
 if __name__ == '__main__':
 
     # sequential test handler
-    func_list = [funtions_tests, dependencies_test]
+    func_list = [function_test, dependencies_test]
 
     for test_func in func_list:
         results = test_func()
