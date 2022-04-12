@@ -4,8 +4,8 @@
 
 `GeneQuest` is a command line (CLI) tool that searches for genes in unassembled genome. `GeneSearch` utilizes unassembled genomes and gene targets in the`FASTA` format and produces  two output `FASTA` files:
 
-- `ALLESES.fasta` - File that contains the largest constructed contig along with the aligned gene query.
-- `ALLESES.aln` - Tab delimited file that contains the alignment of sequence
+- `ALLELES.fasta` - File that contains the largest constructed contig along with the aligned gene query.
+- `ALLELES.aln` - Tab delimited file that contains the alignment of sequence
 
 ## Requirements
 
