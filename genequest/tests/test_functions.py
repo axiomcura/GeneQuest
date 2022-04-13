@@ -6,7 +6,12 @@ import numpy as np
 
 # genequest imports
 from genequest.io_handler.parser import FastaEntry, FastaReader
-from genequest.analysis.alignment import generate_scoring_matrix, score_alignment, trace_back
+from genequest.analysis.alignment import (
+    generate_scoring_matrix,
+    score_alignment,
+    trace_back,
+    parse_traceback_scores,
+)
 
 # ====================
 # data generator functions
@@ -18,7 +23,6 @@ def generate_random_seq(n_nucleotides):
     return random_dna_seq
 
 
-# TODO: add readable logger
 class ParserFunctions(unittest.TestCase):
 
     # creating a stdout logger
@@ -207,16 +211,17 @@ class ParserFunctions(unittest.TestCase):
             self.fail("Iteration could to be conducted with FastaReader object")
         self.logger.info("FastaReader Iteration Test: PASSED")
 
-    class AlignmentTest(unittest.TestCase):
-        """testes all functions and cases when assembling"""
 
-        # creating a stdout logger
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(
-            format="%(asctime)s %(module)s %(levelname)s: %(message)s",
-            datefmt="%m/%d/%Y %I:%M:%S %p",
-            level=logging.INFO,
-        )
+class RunTime(unittest.TestCase):
+    """testes all functions and cases when assembling"""
+
+    # creating a stdout logger
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(
+        format="%(asctime)s %(module)s %(levelname)s: %(message)s",
+        datefmt="%m/%d/%Y %I:%M:%S %p",
+        level=logging.INFO,
+    )
 
     def test_zero_matrix_builder(self):
         """Builds a matrix of zero-filled matrix"""
@@ -241,7 +246,6 @@ class ParserFunctions(unittest.TestCase):
 
         self.logger.info("Matrix Builder: PASSED")
 
-    # TODO: create test
     def test_alignment_score(self):
         """Produce a message if the alignment score"""
 
@@ -279,28 +283,29 @@ class ParserFunctions(unittest.TestCase):
         """
 
         # expected values
-        contig = "ACGTA"
+        contig = "ACCACGTATT"
         query = "ACG"
-
         expected_alignment_score = np.array(
             [
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 10.0, 5.0, 0.0, 0.0, 10.0],
-                [0.0, 5.0, 20.0, 15.0, 10.0, 5.0],
-                [0.0, 0.0, 15.0, 30.0, 25.0, 20.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 10.0, 5.0, 0.0, 10.0, 5.0, 0.0, 0.0, 10.0, 5.0, 0.0],
+                [0.0, 5.0, 20.0, 15.0, 10.0, 20.0, 15.0, 10.0, 5.0, 6.0, 1.0],
+                [0.0, 0.0, 15.0, 16.0, 11.0, 15.0, 30.0, 25.0, 20.0, 15.0, 10.0],
             ]
         )
 
         expected_position, expected_scores = (
-            [(3, 3), (2, 2), (1, 1), (0, 1)],
+            [(3, 6), (2, 5), (1, 4), (0, 3)],
             [30.0, 20.0, 10.0, 0.0],
         )
-        
-        expected_results = None        
+
+        expected_complete_results = [4, 6, 1, 3, 60.0]
 
         # construct scoring matrix
         test_alignment_matrix = score_alignment(contig, query)
-        test_positions, test_scores = trace_back(query, contig, test_alignment_matrix)
+        trace_back_data = trace_back(test_alignment_matrix)
+        test_positions, test_scores = trace_back_data
+        test_complete_results = parse_traceback_scores(trace_back_data)
 
         # checking for equal alignment score matrices
         equal_check = np.all(expected_alignment_score == test_alignment_matrix)
@@ -310,7 +315,6 @@ class ParserFunctions(unittest.TestCase):
             self.logger.error("Traceback Test: FAILED")
             self.fail("Alignment score did not match with the expected scores")
         self.logger.info("Traceback Test -- scoring matrix: PASSED")
-
 
         # check if traceback positions is the same as the expected
         try:
@@ -329,3 +333,9 @@ class ParserFunctions(unittest.TestCase):
         self.logger.info("Traceback Test - scores: PASSED")
 
         # check if the same sequence contig position is obtained
+        try:
+            self.assertEqual(expected_complete_results, test_complete_results)
+        except:
+            self.logger.error("Traceback Test - traceback parser: FAILED")
+            self.fail("Resulting data not match")
+        self.logger.info("Traceback Test - traceback parser: PASSED")

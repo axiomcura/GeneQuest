@@ -76,6 +76,7 @@ def load_contigs(contigs_data_path=None) -> dict:
         e_msg = "unable to find pickle file"
         raise FileNotFoundError(e_msg)
 
+    print(f"opening pickle file: {contigs_data_path}")
     with open(contigs_data_path, "rb") as infile:
         contigs_data = pickle.load(infile)
         return contigs_data

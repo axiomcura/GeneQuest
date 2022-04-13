@@ -52,7 +52,6 @@ class FastaReader:
         # populating attributes
         self.__parse_fasta()
 
-    # TODO: make it only support FastaEntry datatypes
     @staticmethod
     def reverse(entry):
         """Returns the reverse position of the data"""

@@ -1,4 +1,4 @@
-#----------------------------------------
+# ----------------------------------------
 # run_test.py
 # Author: Erik Serrano
 # Email: erik.serrano@cuanschutz.edu
@@ -8,7 +8,7 @@
 # - Dependencies and version check
 # - Testing function independently
 # - Testing use cases
-#----------------------------------------
+# ----------------------------------------
 import unittest
 import subprocess
 import sys
@@ -20,8 +20,9 @@ import test_functions
 
 # creating test suite
 
+
 def dependencies_test():
-    """ Tests Dependencies and versions"""
+    """Tests Dependencies and versions"""
     # create testing env
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -36,7 +37,7 @@ def dependencies_test():
 
 
 def function_test():
-    """ Tests all functions developed in GeneQuest"""
+    """Tests all functions developed in GeneQuest"""
     # create testing env
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
@@ -50,8 +51,7 @@ def function_test():
     return result
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # sequential test handler
     func_list = [function_test, dependencies_test]
